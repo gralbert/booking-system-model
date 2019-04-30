@@ -1,17 +1,24 @@
 import random
 import datetime
 
-class Room:
 
-    type_room = {'одноместный': 2900, 'двухместный': 2300, 'полулюкс': 3200, 'люкс': 4100}
-    koef_comfort = {'стандарт': 1, 'стандарт_улучшенный': 1.2, 'апартамент': 1.5}
+class Room:
+    type_room = {'одноместный': 2900,
+                 'двухместный': 2300,
+                 'полулюкс': 3200,
+                 'люкс': 4100}
+
+    koef_comfort = {'стандарт': 1,
+                    'стандарт_улучшенный': 1.2,
+                    'апартамент': 1.5}
 
     def __init__(self, number, room, max_people, comfort):
         self.number = number
         self.room = room
         self.max_people = max_people
         self.comfort = comfort
-        self.price_room = self.type_room[room]*self.koef_comfort[comfort]
+        self.price_room = self.type_room[room]\
+                          *self.koef_comfort[comfort]
 
     def __str__(self):
         s = 'Номер: ' + self.number + '\n'
@@ -23,40 +30,61 @@ class Room:
     def __repr__(self):
         return self.__str__()
 
-    #@property
-    #def price(self):
-    #    return self.price_room
-    # Сеттер добавить?
-
 
 class Option(Room):
-    food_options = {'без питания': 0, 'завтрак': 280, 'полупансион': 1000}
+    food_options = {'без питания': 0,
+                    'завтрак': 280,
+                    'полупансион': 1000}
     type_room = Room.type_room
     koef_comfort = Room.koef_comfort
 
-    def __init__(self, number, room, max_people, comfort, food):
+    def __init__(self, number, room, max_people, comfort, food, people):
         super().__init__(number, room, max_people, comfort)
         self.food = food
+        self.people = people
+        self.price_room1 = (self.price_room
+                            + self.food_options[self.food]) * self.max_people
 
     def __str__(self):
-        s = ''
-        for variant in self.__repr__():
-            s += variant
-        return s
+        return self.__repr__()
 
     def __repr__(self):
         s = 'номер ' + str(self.number) + ' '
         s += self.room + ' '
         s += self.comfort + ' '
-        s += 'раcсчитан на ' + str(self.max_people) + ' чел. '
-        s += 'фактически ' + str(self.max_people) + ' чел. '
-        self.price_room += self.food_options[self.food]
-        s += self.food + ' стоимость ' + str(self.price_room) + ' руб./сутки'
+        s += 'расcчитан на ' + str(self.max_people) + ' чел. '
+        s += 'фактически ' + str(self.people) + ' чел. '
+        s += self.food + ' стоимость ' + str(self.price_room1) + ' руб./сутки'
         return s
 
     @property
     def price(self):
-        return self.price_room
+        return self.price_room1
+
+    @price.setter
+    def price(self, percent):
+        self.price_room1 = round((self.price_room * percent) * self.max_people
+                                 + (self.food_options[self.food]) * self.people, 2)
+
+    @property
+    def get_number(self):
+        return self.number
+
+    @property
+    def get_food(self):
+        return self.food_options
+
+    @property
+    def get_people(self):
+        return self.people
+
+    @property
+    def get_type(self):
+        return self.room
+
+    @property
+    def capacity(self):
+        return self.max_people
 
 
 class Booking:
@@ -105,3 +133,59 @@ class Booking:
     @property
     def get_status(self):
         return self._status
+
+
+class Report:
+    def __init__(self, date, rooms):
+        self.date = date
+        self.rooms = rooms
+        self.busy = 0
+
+        self.single_room = 0
+        self.double_room = 0
+        self.half_lux = 0
+        self.lux = 0
+
+        self.income = 0
+        self.lose = 0
+
+    def __str__(self):
+        self.free = len(self.rooms) - self.busy
+        self.load = round((self.busy / len(self.rooms)) * 100, 2)
+        s = 'Итог за ' + self.date + '\n'
+        s += 'Количество занятых номеров: ' + str(self.busy) + '\n'
+        s += 'Количество свободных номеров: ' + str(self.free) + '\n'
+        s += 'Занятость по категориям:' + '\n'
+        s += 'Одноместных: ' + str(self.single_room) + '\n'
+        s += 'Двухместных: ' + str(self.double_room) + '\n'
+        s += 'Полулюкс: ' + str(self.half_lux) + '\n'
+        s += 'Люкс: ' + str(self.lux) + '\n'
+        s += 'Процент загруженности гостиницы: ' + str(self.load) + '%\n'
+        s += 'Доход за день: ' + str(self.income) + '\n'
+        s += 'Упущенный доход: ' + str(self.lose) + '\n'
+        s += '-----------------'
+        return s
+
+    def __repr__(self):
+        return self.__str__()
+
+    def inc_busy(self):
+        self.busy += 1
+
+    def add_income(self, value):
+        self.income += value
+
+    def add_single(self):
+        self.single_room += 1
+
+    def add_double(self):
+        self.double_room += 1
+
+    def add_half_lux(self):
+        self.half_lux += 1
+
+    def add_lux(self):
+        self.lux += 1
+
+    def add_lose(self, value):
+        self.lose += value
