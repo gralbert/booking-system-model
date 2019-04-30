@@ -1,3 +1,6 @@
+import random
+import datetime
+
 class Room:
 
     type_room = {'одноместный': 2900, 'двухместный': 2300, 'полулюкс': 3200, 'люкс': 4100}
@@ -55,6 +58,50 @@ class Option(Room):
     def price(self):
         return self.price_room
 
-    #@price_food.setter
-    #def price_food(self, type_food):
-    #    self.price_room = self.food_options[type_food]
+
+class Booking:
+
+    def __init__(self, number, date, days):
+        self._status = self.status_choice()
+        self.date = date
+        self.days = days
+        self.set_days = self.set_days()
+        self.number = number
+
+    def __str__(self):
+        if self._status:
+            return 'Клиент согласен. Номер забронирован.'
+        return 'Клиент отказался от варианта.'
+
+    def __repr__(self):
+        return self.__str__()
+
+    def set_days(self):
+        self.set_days = set()
+        days = self.days - 1
+        day = int(self.date.split('.')[0]) + days
+        month = self.date.split('.')[1]
+        year = self.date.split('.')[2]
+        base = datetime.date(int(year), int(month), day)
+        date_list = [base - datetime.timedelta(days=x) for x in range(0, days)]
+        self.set_days.add(self.date)
+        for date in date_list:
+            self.set_days.add(date.strftime("%d.%m.%Y"))
+        return self.set_days
+
+    @staticmethod
+    def status_choice():
+        lst = [True, True, True, False]
+        return random.choice(lst)
+
+    @property
+    def get_set(self):
+        return self.set_days
+
+    @property
+    def get_number(self):
+        return self.number
+
+    @property
+    def get_status(self):
+        return self._status
