@@ -1,6 +1,25 @@
 from classes import *
 
 
+def get_price(option):
+    return option.price
+
+
+def free_or_not(number, date, days, lst):
+    test_book = Booking(number, date, days)
+    count = 0
+    for book in lst:
+        if int(number) == int(book.get_number):
+            count +=1
+    if not count:
+        return True
+
+    for book in lst:
+        if not(test_book.get_set & book.get_set) and int(number) == int(book.get_number):
+            return True
+    return False
+
+
 def main():
     fund = []
     options = []
